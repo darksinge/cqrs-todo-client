@@ -34,7 +34,7 @@ const todos: Todo[] = [
     done: true,
   },
   {
-    text: 'make todo app',
+    text: 'sleep',
     priority: 'high',
     done: true,
     archived: true,

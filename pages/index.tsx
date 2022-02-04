@@ -126,7 +126,6 @@ const Home: NextPage = () => {
                 <Box sx={{ typography: 'h5', margin: 1 }}>Completed</Box>
                 <DoneTodoList
                   todos={doneTodos}
-                  onUpdateTodo={onUpdateTodo}
                   onArchiveTodo={onArchiveTodo}
                   onRedoTodo={onRedoTodo}
                 />
@@ -147,7 +146,6 @@ const Home: NextPage = () => {
                 <ArchivedTodoList
                   todos={archivedTodos}
                   onDeleteTodo={onDeleteTodo}
-                  onUpdateTodo={onUpdateTodo}
                   onRedoTodo={onRedoTodo}
                 />
               </Stack>

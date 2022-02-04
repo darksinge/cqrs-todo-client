@@ -41,6 +41,11 @@ export default function AddTodo({
           variant="outlined"
           sx={{ flex: 1, margin: 1 }}
           onChange={e => setText(e.target.value)}
+          onKeyUp={e => {
+            if (e.key === 'Enter') {
+              addTodo()
+            }
+          }}
           value={text}
           placeholder="Add new todo"
         />
