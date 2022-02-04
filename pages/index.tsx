@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import type { NextPage } from 'next'
-import { v4 as uuid } from 'uuid'
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 import Box from '@mui/material/Box'

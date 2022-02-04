@@ -5,13 +5,10 @@ import ListItemText from '@mui/material/ListItemText'
 import IconButton from '@mui/material/IconButton'
 import Archive from '@mui/icons-material/Archive'
 import Redo from '@mui/icons-material/Redo'
-import Check from '@mui/icons-material/Check'
 import Checkbox from '@mui/material/Checkbox'
 import ListItemIcon from '@mui/material/ListItemIcon'
 
 import { Todo } from '../pages/api/todos'
-import Avatar from '@mui/material/Avatar'
-import ListItemAvatar from '@mui/material/ListItemAvatar'
 import { ListItemButton } from '@mui/material'
 
 export default function DoneTodoList({
