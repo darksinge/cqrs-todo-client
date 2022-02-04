@@ -9,12 +9,26 @@ import Stack from '@mui/material/Stack'
 import { Priority, Todo } from './api/todos'
 import AddTodo from '../components/AddTodo'
 import TodoList from '../components/TodoList'
+import DoneTodoList from '../components/DoneTodoList'
+
+import partition from 'lodash/partition'
 
 const Home: NextPage = () => {
   const [todos, setTodos] = useState<Todo[]>([])
   const [defaultPriority, setDefaultPriority] = useState<Priority>('low')
-  const doneTodos = useMemo(() => todos.filter(t => t.done), [todos])
-  const inProgressTodos = useMemo(() => todos.filter(t => !t.done), [todos])
+  const { doneTodos, inProgressTodos, archivedTodos } = useMemo(() => {
+    const [done, inProgressTodos] = partition(todos, 'done')
+
+    const [archivedTodos, doneTodos] = partition(done, 'archived')
+    console.log('doneTodos', doneTodos)
+    console.log('archivedTodos', archivedTodos)
+    console.log('inProgressTodos', inProgressTodos)
+    return {
+      doneTodos,
+      inProgressTodos,
+      archivedTodos,
+    }
+  }, [todos])
 
   useEffect(() => {
     fetch('/api/todos')
@@ -43,6 +57,20 @@ const Home: NextPage = () => {
       todos[index] = todo
       setTodos([...todos])
     }
+  }
+
+  const onArchiveTodo = (todo: Todo) => {
+    const index = todos.findIndex(t => t.id === todo.id)
+    if (index > -1) {
+      todos[index] = todo
+      setTodos([...todos])
+    }
+  }
+
+  const onRedoTodo = (todo: Todo) => {
+    todo.archived = false
+    todo.done = false
+    onUpdateTodo(todo)
   }
 
   return (
@@ -85,8 +113,29 @@ const Home: NextPage = () => {
               }}>
               <Stack>
                 <Box sx={{ typography: 'h5', margin: 1 }}>Completed</Box>
-                <TodoList
+                <DoneTodoList
                   todos={doneTodos}
+                  deleteTodo={deleteTodo}
+                  onUpdateTodo={onUpdateTodo}
+                  onArchiveTodo={onArchiveTodo}
+                  onRedoTodo={onRedoTodo}
+                />
+              </Stack>
+            </Paper>
+          )}
+
+          {archivedTodos.length > 0 && (
+            <Paper
+              elevation={3}
+              sx={{
+                marginY: 8,
+                marginX: 1,
+                padding: 1,
+              }}>
+              <Stack>
+                <Box sx={{ typography: 'h5', margin: 1 }}>Archived</Box>
+                <TodoList
+                  todos={archivedTodos}
                   deleteTodo={deleteTodo}
                   onUpdateTodo={onUpdateTodo}
                 />

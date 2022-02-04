@@ -8,6 +8,7 @@ export type Todo = {
   text: string
   priority: Priority
   done?: boolean
+  archived?: boolean
 }
 
 type GetTodoResponse = {
@@ -16,27 +17,34 @@ type GetTodoResponse = {
 
 const todos: Todo[] = [
   {
-    id: 0,
     text: 'clean bedroom',
     priority: 'low',
   },
   {
-    id: 1,
     text: 'grocery shopping',
     priority: 'medium',
   },
   {
-    id: 2,
     text: 'learn Rust',
     priority: 'high',
   },
   {
-    id: 3,
     text: 'make todo app',
     priority: 'high',
     done: true,
   },
-]
+  {
+    text: 'make todo app',
+    priority: 'high',
+    done: true,
+    archived: true,
+  },
+].map<Todo>((todo, i) => {
+  return {
+    id: i,
+    ...todo,
+  } as Todo
+})
 
 export default function handler(
   req: NextApiRequest,
