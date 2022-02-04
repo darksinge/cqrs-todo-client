@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import type { NextPage } from 'next'
+import { v4 as uuid } from 'uuid'
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
 import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
+import LinearProgress from '@mui/material/LinearProgress'
 import { Priority, Todo } from './api/todos'
 import AddTodo from '../components/AddTodo'
 import TodoList from '../components/TodoList'
@@ -14,16 +16,20 @@ import ArchivedTodoList from '../components/ArchivedTodoList'
 
 import partition from 'lodash/partition'
 
+const headers = {
+  'Content-Type': 'application/json',
+}
+
 const Home: NextPage = () => {
   const [todos, setTodos] = useState<Todo[]>([])
+  const [requestCount, setRequestCount] = useState(0)
+  const loading = useMemo(() => requestCount > 0, [requestCount])
+  const [errors, setErrors] = useState<Error[]>([])
   const [defaultPriority, setDefaultPriority] = useState<Priority>('low')
   const { doneTodos, inProgressTodos, archivedTodos } = useMemo(() => {
     const [done, inProgressTodos] = partition(todos, 'done')
 
     const [archivedTodos, doneTodos] = partition(done, 'archived')
-    console.log('doneTodos', doneTodos)
-    console.log('archivedTodos', archivedTodos)
-    console.log('inProgressTodos', inProgressTodos)
     return {
       doneTodos,
       inProgressTodos,
@@ -31,22 +37,55 @@ const Home: NextPage = () => {
     }
   }, [todos])
 
+  const increaseRequestCount = () => {
+    console.log('increasing request count')
+    setRequestCount(requestCount + 1)
+  }
+
+  const decreaseRequestCount = () => {
+    console.log('decreasing request count')
+    setRequestCount(Math.max(0, requestCount - 1))
+  }
+
   useEffect(() => {
+    increaseRequestCount()
     fetch('/api/todos')
       .then(res => res.json())
       .then(data => {
         setTodos(data.todos)
       })
+      .finally(() => decreaseRequestCount())
   }, [])
 
-  const onAddTodo = (todo: Omit<Todo, 'id'>) => {
-    setTodos([
-      ...todos,
-      {
-        ...todo,
-        id: todos.length,
-      } as Todo,
-    ])
+  const handleApiError = (e: Error) => {
+    console.error(e)
+    setErrors([...errors, e])
+  }
+
+  const onAddTodo = (payload: Omit<Todo, 'id'>) => {
+    const todo: Todo = {
+      ...payload,
+      id: `${todos.length}`,
+    }
+
+    increaseRequestCount()
+    setTodos([...todos, todo])
+    fetch('/api/todos', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(todo),
+    })
+      .then(res => res.json())
+      .then(data => data.todo)
+      .then(todo => {
+        const index = todos.findIndex(t => t.id === todo.id)
+        if (index > -1) {
+          todos[index] = todo
+          setTodos(todo)
+        }
+      })
+      .catch(handleApiError)
+      .finally(() => decreaseRequestCount())
   }
 
   const onDeleteTodo = (todo: Todo) => {
@@ -54,14 +93,31 @@ const Home: NextPage = () => {
     if (index > -1) {
       todos.splice(index, 1)
       setTodos([...todos])
+      increaseRequestCount()
+      fetch(`/api/todos/${todo.id}`, {
+        method: 'DELETE',
+      })
+        .catch(handleApiError)
+        .finally(() => decreaseRequestCount())
     }
   }
 
   const onUpdateTodo = (todo: Todo) => {
     const index = todos.findIndex(t => t.id === todo.id)
     if (index > -1) {
-      todos[index] = todo
-      setTodos([...todos])
+      increaseRequestCount()
+      fetch(`/api/todos/${todo.id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'PUT',
+        body: JSON.stringify(todo),
+      })
+        .then(() => {
+          todos[index] = todo
+          setTodos([...todos])
+        })
+        .finally(() => decreaseRequestCount())
     }
   }
 
@@ -94,6 +150,22 @@ const Home: NextPage = () => {
 
       <main className={styles.main}>
         <Container>
+          {errors.length > 0 && (
+            <Paper
+              elevation={3}
+              sx={{
+                margin: 1,
+                padding: 1,
+              }}>
+              <Box
+                sx={theme => ({
+                  typography: 'body1',
+                  color: theme.palette.warning.main,
+                })}>
+                {JSON.stringify(errors, null, 3)}
+              </Box>
+            </Paper>
+          )}
           <Paper
             elevation={3}
             sx={{
@@ -101,6 +173,9 @@ const Home: NextPage = () => {
               padding: 1,
             }}>
             <Stack>
+              {requestCount.toString()}
+              {loading.toString()}
+              {requestCount > 0 && <LinearProgress />}
               <AddTodo
                 todos={todos}
                 onAddTodo={onAddTodo}

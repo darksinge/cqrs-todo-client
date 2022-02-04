@@ -6,10 +6,13 @@ import IconButton from '@mui/material/IconButton'
 import Archive from '@mui/icons-material/Archive'
 import Redo from '@mui/icons-material/Redo'
 import Check from '@mui/icons-material/Check'
+import Checkbox from '@mui/material/Checkbox'
+import ListItemIcon from '@mui/material/ListItemIcon'
 
 import { Todo } from '../pages/api/todos'
 import Avatar from '@mui/material/Avatar'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
+import { ListItemButton } from '@mui/material'
 
 export default function DoneTodoList({
   todos,
@@ -45,15 +48,20 @@ export default function DoneTodoList({
               </IconButton>
             </>
           }>
-          <ListItemAvatar>
-            <Avatar>
-              <Check />
-            </Avatar>
-          </ListItemAvatar>
-          <ListItemText
-            primary={todo.text}
-            secondary={`${todo.priority} priority`}
-          />
+          <ListItemButton>
+            <ListItemIcon>
+              <Checkbox
+                edge="start"
+                checked={true}
+                tabIndex={-1}
+                disableRipple
+              />
+            </ListItemIcon>
+            <ListItemText
+              primary={todo.text}
+              secondary={`${todo.priority} priority`}
+            />
+          </ListItemButton>
         </ListItem>
       ))}
     </List>
