@@ -10,6 +10,7 @@ import { Priority, Todo } from './api/todos'
 import AddTodo from '../components/AddTodo'
 import TodoList from '../components/TodoList'
 import DoneTodoList from '../components/DoneTodoList'
+import ArchivedTodoList from '../components/ArchivedTodoList'
 
 import partition from 'lodash/partition'
 
@@ -125,7 +126,6 @@ const Home: NextPage = () => {
                 <Box sx={{ typography: 'h5', margin: 1 }}>Completed</Box>
                 <DoneTodoList
                   todos={doneTodos}
-                  onDeleteTodo={onDeleteTodo}
                   onUpdateTodo={onUpdateTodo}
                   onArchiveTodo={onArchiveTodo}
                   onRedoTodo={onRedoTodo}
@@ -144,10 +144,11 @@ const Home: NextPage = () => {
               }}>
               <Stack>
                 <Box sx={{ typography: 'h5', margin: 1 }}>Archived</Box>
-                <TodoList
+                <ArchivedTodoList
                   todos={archivedTodos}
                   onDeleteTodo={onDeleteTodo}
                   onUpdateTodo={onUpdateTodo}
+                  onRedoTodo={onRedoTodo}
                 />
               </Stack>
             </Paper>

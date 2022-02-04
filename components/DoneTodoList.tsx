@@ -15,19 +15,20 @@ import IconButton from '@mui/material/IconButton'
 import Delete from '@mui/icons-material/Delete'
 import Archive from '@mui/icons-material/Archive'
 import Redo from '@mui/icons-material/Redo'
+import Check from '@mui/icons-material/Check'
 
 import { Priority, Todo } from '../pages/api/todos'
 import { priorityChoices } from './PrioritySelect'
+import Avatar from '@mui/material/Avatar'
+import ListItemAvatar from '@mui/material/ListItemAvatar'
 
 export default function DoneTodoList({
   todos,
-  onDeleteTodo,
   onUpdateTodo,
   onArchiveTodo,
   onRedoTodo,
 }: {
   todos: Todo[]
-  onDeleteTodo: (todo: Todo) => void
   onUpdateTodo: (todo: Todo) => void
   onArchiveTodo: (todo: Todo) => void
   onRedoTodo: (todo: Todo) => void
@@ -35,46 +36,37 @@ export default function DoneTodoList({
   return (
     <List>
       {todos.map((todo, i) => (
-        <ListItem key={todo.id}>
-          <ListItemButton
-            onClick={() => {
-              onUpdateTodo({
-                ...todo,
-                done: !todo.done,
-              })
-            }}>
-            <ListItemIcon>
-              <Checkbox
-                edge="start"
-                checked={todo?.done ?? false}
-                tabIndex={-1}
-                disableRipple
-              />
-            </ListItemIcon>
-            <ListItemText id={`${todo.id}`}>{todo.text}</ListItemText>
-          </ListItemButton>
-          <IconButton
-            color="primary"
-            sx={{ margin: 1 }}
-            onClick={() => {
-              onRedoTodo({ ...todo })
-            }}>
-            <Redo />
-          </IconButton>
-          <IconButton
-            color="primary"
-            sx={{ margin: 1 }}
-            onClick={() => {
-              onArchiveTodo({ ...todo })
-            }}>
-            <Archive />
-          </IconButton>
-          <IconButton
-            color="primary"
-            sx={{ margin: 1 }}
-            onClick={() => onDeleteTodo({ ...todo })}>
-            <Delete />
-          </IconButton>
+        <ListItem
+          key={todo.id}
+          secondaryAction={
+            <>
+              <IconButton
+                color="primary"
+                sx={{ margin: 1 }}
+                onClick={() => {
+                  onRedoTodo({ ...todo })
+                }}>
+                <Redo />
+              </IconButton>
+              <IconButton
+                color="primary"
+                sx={{ margin: 1 }}
+                onClick={() => {
+                  onArchiveTodo({ ...todo })
+                }}>
+                <Archive />
+              </IconButton>
+            </>
+          }>
+          <ListItemAvatar>
+            <Avatar>
+              <Check />
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText
+            primary={todo.text}
+            secondary={`${todo.priority} priority`}
+          />
         </ListItem>
       ))}
     </List>
