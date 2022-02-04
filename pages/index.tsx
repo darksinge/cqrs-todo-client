@@ -38,12 +38,17 @@ const Home: NextPage = () => {
       })
   }, [])
 
-  const onAddTodo = (todo: Todo) => {
-    todo.priority = defaultPriority
-    setTodos([...todos, todo])
+  const onAddTodo = (todo: Omit<Todo, 'id'>) => {
+    setTodos([
+      ...todos,
+      {
+        ...todo,
+        id: todos.length,
+      } as Todo,
+    ])
   }
 
-  const deleteTodo = (todo: Todo) => {
+  const onDeleteTodo = (todo: Todo) => {
     const index = todos.findIndex(t => t.id === todo.id)
     if (index > -1) {
       todos.splice(index, 1)
@@ -62,15 +67,20 @@ const Home: NextPage = () => {
   const onArchiveTodo = (todo: Todo) => {
     const index = todos.findIndex(t => t.id === todo.id)
     if (index > -1) {
-      todos[index] = todo
+      todos[index] = {
+        ...todo,
+        archived: true,
+      }
       setTodos([...todos])
     }
   }
 
   const onRedoTodo = (todo: Todo) => {
-    todo.archived = false
-    todo.done = false
-    onUpdateTodo(todo)
+    onUpdateTodo({
+      ...todo,
+      archived: false,
+      done: false,
+    })
   }
 
   return (
@@ -98,7 +108,7 @@ const Home: NextPage = () => {
               />
               <TodoList
                 todos={inProgressTodos}
-                deleteTodo={deleteTodo}
+                onDeleteTodo={onDeleteTodo}
                 onUpdateTodo={onUpdateTodo}
               />
             </Stack>
@@ -115,7 +125,7 @@ const Home: NextPage = () => {
                 <Box sx={{ typography: 'h5', margin: 1 }}>Completed</Box>
                 <DoneTodoList
                   todos={doneTodos}
-                  deleteTodo={deleteTodo}
+                  onDeleteTodo={onDeleteTodo}
                   onUpdateTodo={onUpdateTodo}
                   onArchiveTodo={onArchiveTodo}
                   onRedoTodo={onRedoTodo}
@@ -136,7 +146,7 @@ const Home: NextPage = () => {
                 <Box sx={{ typography: 'h5', margin: 1 }}>Archived</Box>
                 <TodoList
                   todos={archivedTodos}
-                  deleteTodo={deleteTodo}
+                  onDeleteTodo={onDeleteTodo}
                   onUpdateTodo={onUpdateTodo}
                 />
               </Stack>

@@ -18,11 +18,11 @@ import { priorityChoices } from './PrioritySelect'
 
 export default function TodoList({
   todos,
-  deleteTodo,
+  onDeleteTodo,
   onUpdateTodo,
 }: {
   todos: Todo[]
-  deleteTodo: (todo: Todo) => void
+  onDeleteTodo: (todo: Todo) => void
   onUpdateTodo: (todo: Todo) => void
 }) {
   return (
@@ -51,9 +51,11 @@ export default function TodoList({
               id="priority-select"
               value={todo.priority}
               label="Priority"
-              onChange={v => {
-                todo.priority = v.target.value as Priority
-                onUpdateTodo(todo)
+              onChange={e => {
+                onUpdateTodo({
+                  ...todo,
+                  priority: e.target.value as Priority,
+                })
               }}>
               {priorityChoices.map(choice => (
                 <MenuItem key={choice} value={choice}>
@@ -65,7 +67,7 @@ export default function TodoList({
           <IconButton
             color="primary"
             sx={{ margin: 1 }}
-            onClick={() => deleteTodo(todo)}>
+            onClick={() => onDeleteTodo(todo)}>
             <Delete />
           </IconButton>
         </ListItem>

@@ -21,13 +21,13 @@ import { priorityChoices } from './PrioritySelect'
 
 export default function DoneTodoList({
   todos,
-  deleteTodo,
+  onDeleteTodo,
   onUpdateTodo,
   onArchiveTodo,
   onRedoTodo,
 }: {
   todos: Todo[]
-  deleteTodo: (todo: Todo) => void
+  onDeleteTodo: (todo: Todo) => void
   onUpdateTodo: (todo: Todo) => void
   onArchiveTodo: (todo: Todo) => void
   onRedoTodo: (todo: Todo) => void
@@ -57,10 +57,7 @@ export default function DoneTodoList({
             color="primary"
             sx={{ margin: 1 }}
             onClick={() => {
-              onArchiveTodo({
-                ...todo,
-                archived: true,
-              })
+              onRedoTodo({ ...todo })
             }}>
             <Redo />
           </IconButton>
@@ -68,14 +65,14 @@ export default function DoneTodoList({
             color="primary"
             sx={{ margin: 1 }}
             onClick={() => {
-              onRedoTodo({ ...todo })
+              onArchiveTodo({ ...todo })
             }}>
             <Archive />
           </IconButton>
           <IconButton
             color="primary"
             sx={{ margin: 1 }}
-            onClick={() => deleteTodo(todo)}>
+            onClick={() => onDeleteTodo({ ...todo })}>
             <Delete />
           </IconButton>
         </ListItem>

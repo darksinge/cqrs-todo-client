@@ -12,7 +12,7 @@ export default function AddTodo({
   defaultPriority,
   setDefaultPriority,
 }: {
-  onAddTodo: Function
+  onAddTodo: (partial: Omit<Todo, 'id'>) => void
   todos: Todo[]
   defaultPriority: Priority
   setDefaultPriority: (p: Priority) => void
@@ -21,12 +21,11 @@ export default function AddTodo({
 
   const addTodo = () => {
     if (text) {
-      const todo: Todo = {
-        id: todos.length,
+      const todo: Omit<Todo, 'id'> = {
         text,
-        priority: 'low',
-        done: false,
+        priority: defaultPriority,
       }
+
       onAddTodo(todo)
       setText('')
     }
