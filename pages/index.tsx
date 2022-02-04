@@ -1,16 +1,20 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
+import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
 import Container from '@mui/material/Container'
 import Stack from '@mui/material/Stack'
-import { Todo } from './api/todos'
+import { Priority, Todo } from './api/todos'
 import AddTodo from '../components/AddTodo'
 import TodoList from '../components/TodoList'
 
 const Home: NextPage = () => {
   const [todos, setTodos] = useState<Todo[]>([])
+  const [defaultPriority, setDefaultPriority] = useState<Priority>('low')
+  const doneTodos = useMemo(() => todos.filter(t => t.done), [todos])
+  const inProgressTodos = useMemo(() => todos.filter(t => !t.done), [todos])
 
   useEffect(() => {
     fetch('/api/todos')
@@ -20,12 +24,25 @@ const Home: NextPage = () => {
       })
   }, [])
 
-  useEffect(() => {
-    console.log(JSON.stringify(todos, null, 2))
-  }, [todos])
-
   const onAddTodo = (todo: Todo) => {
+    todo.priority = defaultPriority
     setTodos([...todos, todo])
+  }
+
+  const deleteTodo = (todo: Todo) => {
+    const index = todos.findIndex(t => t.id === todo.id)
+    if (index > -1) {
+      todos.splice(index, 1)
+      setTodos([...todos])
+    }
+  }
+
+  const onUpdateTodo = (todo: Todo) => {
+    const index = todos.findIndex(t => t.id === todo.id)
+    if (index > -1) {
+      todos[index] = todo
+      setTodos([...todos])
+    }
   }
 
   return (
@@ -45,10 +62,37 @@ const Home: NextPage = () => {
               padding: 1,
             }}>
             <Stack>
-              <AddTodo todos={todos} onAddTodo={onAddTodo} />
-              <TodoList todos={todos} setTodos={setTodos} />
+              <AddTodo
+                todos={todos}
+                onAddTodo={onAddTodo}
+                defaultPriority={defaultPriority}
+                setDefaultPriority={setDefaultPriority}
+              />
+              <TodoList
+                todos={inProgressTodos}
+                deleteTodo={deleteTodo}
+                onUpdateTodo={onUpdateTodo}
+              />
             </Stack>
           </Paper>
+          {doneTodos.length > 0 && (
+            <Paper
+              elevation={3}
+              sx={{
+                marginY: 8,
+                marginX: 1,
+                padding: 1,
+              }}>
+              <Stack>
+                <Box sx={{ typography: 'h5', margin: 1 }}>Completed</Box>
+                <TodoList
+                  todos={doneTodos}
+                  deleteTodo={deleteTodo}
+                  onUpdateTodo={onUpdateTodo}
+                />
+              </Stack>
+            </Paper>
+          )}
         </Container>
       </main>
 

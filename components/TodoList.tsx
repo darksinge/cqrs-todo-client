@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
@@ -14,15 +14,16 @@ import IconButton from '@mui/material/IconButton'
 import Delete from '@mui/icons-material/Delete'
 
 import { Priority, Todo } from '../pages/api/todos'
-
-const priorityChoices: Priority[] = ['high', 'medium', 'low']
+import { priorityChoices } from './PrioritySelect'
 
 export default function TodoList({
   todos,
-  setTodos,
+  deleteTodo,
+  onUpdateTodo,
 }: {
   todos: Todo[]
-  setTodos: (todos: Todo[]) => void
+  deleteTodo: (todo: Todo) => void
+  onUpdateTodo: (todo: Todo) => void
 }) {
   return (
     <List>
@@ -30,11 +31,9 @@ export default function TodoList({
         <ListItem key={todo.id}>
           <ListItemButton
             onClick={() => {
-              const todos_ = JSON.parse(JSON.stringify(todos))
-              todos_[i].done = !todos_[i].done
-              setTodos(todos_)
-            }}
-            dense>
+              todo.done = !todo.done
+              onUpdateTodo(todo)
+            }}>
             <ListItemIcon>
               <Checkbox
                 edge="start"
@@ -46,16 +45,15 @@ export default function TodoList({
             <ListItemText id={`${todo.id}`}>{todo.text}</ListItemText>
           </ListItemButton>
           <FormControl sx={{ width: 125 }}>
-            <InputLabel id="demo-simple-select-label">Priority</InputLabel>
+            <InputLabel id="priority-select-label">Priority</InputLabel>
             <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
+              labelId="priority-select-label"
+              id="priority-select"
               value={todo.priority}
               label="Priority"
               onChange={v => {
-                const todos_ = JSON.parse(JSON.stringify(todos))
-                todos_[i].priority = v.target.value as Priority
-                setTodos(todos_)
+                todo.priority = v.target.value as Priority
+                onUpdateTodo(todo)
               }}>
               {priorityChoices.map(choice => (
                 <MenuItem key={choice} value={choice}>
@@ -67,11 +65,7 @@ export default function TodoList({
           <IconButton
             color="primary"
             sx={{ margin: 1 }}
-            onClick={() => {
-              const todos_: Todo[] = JSON.parse(JSON.stringify(todos))
-              todos_.splice(i, 1)
-              setTodos(todos_)
-            }}>
+            onClick={() => deleteTodo(todo)}>
             <Delete />
           </IconButton>
         </ListItem>

@@ -1,40 +1,46 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import type { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse } from 'next'
 
-export type Priority = "low" | "medium" | "high";
+export type Priority = 'low' | 'medium' | 'high'
 
 export type Todo = {
-  id: number;
-  text: string;
-  priority: Priority;
-  done?: boolean;
-};
+  id: number
+  text: string
+  priority: Priority
+  done?: boolean
+}
 
 type GetTodoResponse = {
-  todos: Todo[];
-};
+  todos: Todo[]
+}
 
 const todos: Todo[] = [
   {
     id: 0,
-    text: "clean bedroom",
-    priority: "low",
+    text: 'clean bedroom',
+    priority: 'low',
   },
   {
     id: 1,
-    text: "grocery shopping",
-    priority: "medium",
+    text: 'grocery shopping',
+    priority: 'medium',
   },
   {
     id: 2,
-    text: "learn Rust",
-    priority: "high",
+    text: 'learn Rust',
+    priority: 'high',
   },
-];
+  {
+    id: 3,
+    text: 'make todo app',
+    priority: 'high',
+    done: true,
+  },
+]
 
 export default function handler(
   req: NextApiRequest,
-  res: NextApiResponse<GetTodoResponse>
+  res: NextApiResponse<GetTodoResponse>,
 ) {
-  res.status(200).json({ todos });
+  res.status(200).json({ todos })
 }

@@ -3,14 +3,19 @@ import TextField from '@mui/material/TextField'
 import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
 import Add from '@mui/icons-material/Add'
-import { Todo } from '../pages/api/todos'
+import { Priority, Todo } from '../pages/api/todos'
+import PrioritySelect from './PrioritySelect'
 
 export default function AddTodo({
   onAddTodo,
   todos,
+  defaultPriority,
+  setDefaultPriority,
 }: {
   onAddTodo: Function
   todos: Todo[]
+  defaultPriority: Priority
+  setDefaultPriority: (p: Priority) => void
 }) {
   const [text, setText] = useState('')
 
@@ -40,9 +45,16 @@ export default function AddTodo({
           value={text}
           placeholder="Add new todo"
         />
+        <PrioritySelect
+          defaultPriority={defaultPriority}
+          setDefaultPriority={setDefaultPriority}
+        />
         <IconButton
-          color="primary"
-          sx={{ margin: 1 }}
+          sx={theme => ({
+            margin: 2,
+            backgroundColor: theme.palette.primary.main,
+            color: theme.palette.primary.contrastText,
+          })}
           onClick={() => addTodo()}>
           <Add />
         </IconButton>
