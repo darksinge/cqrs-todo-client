@@ -22,9 +22,9 @@ export default function PrioritySelect({
         id="demo-simple-select"
         value={defaultPriority}
         label="Priority"
-        onChange={v => setDefaultPriority(v.target.value as Priority)}>
-        {priorityChoices.map(choice => (
-          <MenuItem key={choice} value={choice}>
+        onChange={e => setDefaultPriority(e.target.value as Priority)}>
+        {priorityChoices.map((choice, i) => (
+          <MenuItem key={i} value={choice}>
             {choice}
           </MenuItem>
         ))}

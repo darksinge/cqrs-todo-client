@@ -26,7 +26,7 @@ export default function DoneTodoList({
     <List>
       {todos.map((todo, i) => (
         <ListItem
-          key={todo.id}
+          key={i}
           secondaryAction={
             <>
               <IconButton

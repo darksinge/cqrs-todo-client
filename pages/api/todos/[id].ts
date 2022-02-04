@@ -20,7 +20,7 @@ type UpdateResponse = {
   todo: Todo
 }
 
-type Response = GetResponse | BadRequestResponse | UpdateResponse
+type Response = GetResponse | BadRequestResponse | UpdateResponse | undefined
 
 const sleep = () => new Promise(resolve => setTimeout(resolve, 2000))
 
@@ -39,8 +39,8 @@ async function get(id: string): Promise<Todo | undefined> {
   return todos.find(t => t.id === id)
 }
 
-function deleteTodo(id: string): Promise<any> {
-  return fetch(`${TODO_SERVICE_URI}/todos/${id}`, {
+async function deleteTodo(id: string): Promise<void> {
+  await fetch(`${TODO_SERVICE_URI}/todos/${id}`, {
     method: 'DELETE',
     headers,
   })
@@ -62,13 +62,12 @@ export default async function handler(
     }
     case 'PUT':
     case 'POST': {
-      console.log('req.body', req.body)
       const todo = await update(req.body)
       return res.status(200).json({ todo })
     }
     case 'DELETE': {
       await deleteTodo(id as string)
-      return res.status(204)
+      return res.status(200).end()
     }
 
     default:

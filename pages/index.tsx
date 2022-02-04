@@ -12,11 +12,14 @@ import AddTodo from '../components/AddTodo'
 import TodoList from '../components/TodoList'
 import DoneTodoList from '../components/DoneTodoList'
 import ArchivedTodoList from '../components/ArchivedTodoList'
+import cuid from 'cuid'
 
 import partition from 'lodash/partition'
 
-const headers = {
-  'Content-Type': 'application/json',
+const defaultFetchConfig = {
+  headers: {
+    'Content-Type': 'application/json',
+  },
 }
 
 const Home: NextPage = () => {
@@ -48,7 +51,9 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     increaseRequestCount()
-    fetch('/api/todos')
+    fetch('/api/todos', {
+      ...defaultFetchConfig,
+    })
       .then(res => res.json())
       .then(data => {
         setTodos(data.todos)
@@ -64,24 +69,19 @@ const Home: NextPage = () => {
   const onAddTodo = (payload: Omit<Todo, 'id'>) => {
     const todo: Todo = {
       ...payload,
-      id: `${todos.length}`,
+      id: cuid.slug(),
     }
 
     increaseRequestCount()
-    setTodos([...todos, todo])
     fetch('/api/todos', {
+      ...defaultFetchConfig,
       method: 'POST',
-      headers,
       body: JSON.stringify(todo),
     })
       .then(res => res.json())
       .then(data => data.todo)
       .then(todo => {
-        const index = todos.findIndex(t => t.id === todo.id)
-        if (index > -1) {
-          todos[index] = todo
-          setTodos(todo)
-        }
+        setTodos([...todos, todo])
       })
       .catch(handleApiError)
       .finally(() => decreaseRequestCount())
@@ -94,6 +94,7 @@ const Home: NextPage = () => {
       setTodos([...todos])
       increaseRequestCount()
       fetch(`/api/todos/${todo.id}`, {
+        ...defaultFetchConfig,
         method: 'DELETE',
       })
         .catch(handleApiError)
@@ -108,9 +109,7 @@ const Home: NextPage = () => {
       setTodos([...todos])
       increaseRequestCount()
       fetch(`/api/todos/${todo.id}`, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        ...defaultFetchConfig,
         method: 'PUT',
         body: JSON.stringify(todo),
       })
@@ -170,7 +169,12 @@ const Home: NextPage = () => {
               padding: 1,
             }}>
             <Stack>
-              {loading && <LinearProgress />}
+              {loading && (
+                <>
+                  {requestCount.toString()}
+                  <LinearProgress />
+                </>
+              )}
               <AddTodo
                 todos={todos}
                 onAddTodo={onAddTodo}
