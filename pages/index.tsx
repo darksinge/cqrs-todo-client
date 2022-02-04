@@ -105,6 +105,8 @@ const Home: NextPage = () => {
   const onUpdateTodo = (todo: Todo) => {
     const index = todos.findIndex(t => t.id === todo.id)
     if (index > -1) {
+      todos[index] = todo
+      setTodos([...todos])
       increaseRequestCount()
       fetch(`/api/todos/${todo.id}`, {
         headers: {
@@ -122,14 +124,10 @@ const Home: NextPage = () => {
   }
 
   const onArchiveTodo = (todo: Todo) => {
-    const index = todos.findIndex(t => t.id === todo.id)
-    if (index > -1) {
-      todos[index] = {
-        ...todo,
-        archived: true,
-      }
-      setTodos([...todos])
-    }
+    onUpdateTodo({
+      ...todo,
+      archived: true,
+    })
   }
 
   const onRedoTodo = (todo: Todo) => {
@@ -173,9 +171,7 @@ const Home: NextPage = () => {
               padding: 1,
             }}>
             <Stack>
-              {requestCount.toString()}
-              {loading.toString()}
-              {requestCount > 0 && <LinearProgress />}
+              {loading && <LinearProgress />}
               <AddTodo
                 todos={todos}
                 onAddTodo={onAddTodo}
