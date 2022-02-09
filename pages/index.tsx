@@ -16,6 +16,8 @@ import cuid from 'cuid'
 
 import partition from 'lodash/partition'
 
+const sleep = () => new Promise(resolve => setTimeout(resolve, 3000))
+
 const defaultFetchConfig = {
   headers: {
     'Content-Type': 'application/json',
@@ -121,11 +123,58 @@ const Home: NextPage = () => {
     }
   }
 
-  const onArchiveTodo = (todo: Todo) => {
-    onUpdateTodo({
-      ...todo,
-      archived: true,
+  const pollTodoByRevision = async (
+    id: string,
+    revision: string | number,
+    retryCount: number = 0,
+  ): Promise<Todo> => {
+    if (retryCount > 10) {
+      throw new Error(`Failed to get updated todo by revision: ${revision}`)
+    }
+
+    const res = await fetch(`/api/todos/${id}?revision=${revision}`, {
+      ...defaultFetchConfig,
+      method: 'GET',
     })
+
+    if (res.status === 404) {
+      await sleep()
+      return pollTodoByRevision(id, revision, retryCount + 1)
+    }
+
+    const { todo }: { todo: Todo } = await res.json()
+    console.log('todo from polling:', todo)
+    return todo
+  }
+
+  const onArchiveTodo = (todo: Todo) => {
+    const index = todos.findIndex(t => t.id === todo.id)
+    const archiveTodo: () => Promise<Todo> = async () => {
+      todos[index] = todo
+      setTodos([...todos])
+      increaseRequestCount()
+      const {
+        header: { revision },
+      } = await fetch(`/api/todos/${todo.id}/archive`, {
+        ...defaultFetchConfig,
+        method: 'GET',
+      })
+        .then(res => res.json())
+        .then(data => data.event)
+
+      const todo_: Todo = await pollTodoByRevision(todo.id, revision)
+      console.log('todo archived:', todo_)
+      return todo_
+    }
+
+    if (index > -1) {
+      archiveTodo()
+        .then(todo => {
+          todos[index] = todo
+          setTodos([...todos])
+        })
+        .finally(() => decreaseRequestCount())
+    }
   }
 
   const onRedoTodo = (todo: Todo) => {
@@ -169,11 +218,10 @@ const Home: NextPage = () => {
               padding: 1,
             }}>
             <Stack>
-              {loading && (
-                <>
-                  {requestCount.toString()}
-                  <LinearProgress />
-                </>
+              {loading ? (
+                <LinearProgress />
+              ) : (
+                <Box sx={{ height: '4px', width: '100%' }} />
               )}
               <AddTodo
                 todos={todos}

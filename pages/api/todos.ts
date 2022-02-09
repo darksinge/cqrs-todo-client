@@ -68,7 +68,7 @@ function create(todo: Todo): Promise<Todo> {
     body: JSON.stringify(todo),
   })
     .then(res => res.json())
-    .then(data => data.todo)
+    .then(data => data.event.payload.initialState)
 }
 
 function getAll(): Promise<Todo[]> {
@@ -87,7 +87,6 @@ export default async function handler(
 ) {
   switch (req.method) {
     case 'POST': {
-      console.log('req.body', req.body)
       const todo = await create(req.body)
       return res.status(200).json({ todo })
     }
