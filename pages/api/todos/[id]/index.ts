@@ -18,18 +18,17 @@ type GetResponse = {
 
 type UpdateResponse = {
   todo?: Todo
+  revision?: number
 }
 
 type Response = GetResponse | ErrorResponse | UpdateResponse | undefined
 
-async function update(todo: Todo): Promise<Todo> {
+async function update(todo: Todo): Promise<any> {
   return fetch(`${TODO_SERVICE_URI}/todos/${todo.id}`, {
     method: 'PUT',
     headers,
     body: JSON.stringify(todo),
-  })
-    .then(res => res.json())
-    .then(data => data.todo)
+  }).then(res => res.json())
 }
 
 async function get(id: string, revision?: string): Promise<Todo | undefined> {
@@ -72,8 +71,11 @@ export default async function handler(
     }
     case 'PUT':
     case 'POST': {
-      const todo = await update(req.body)
-      return res.status(200).json({ todo })
+      const data = await update(req.body)
+      console.log('EVENT AFTER UPDATE:', data)
+      const { snapshot: todo } = data.event.payload
+      const { revision } = data.event.header
+      return res.status(200).json({ todo, revision })
     }
     case 'DELETE': {
       await deleteTodo(id as string)

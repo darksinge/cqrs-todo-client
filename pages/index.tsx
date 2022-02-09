@@ -42,12 +42,12 @@ const Home: NextPage = () => {
   }, [todos])
 
   const increaseRequestCount = () => {
-    console.log('increasing request count')
+    // console.log('increasing request count')
     setRequestCount(requestCount + 1)
   }
 
   const decreaseRequestCount = () => {
-    console.log('decreasing request count')
+    // console.log('decreasing request count')
     setRequestCount(Math.max(0, requestCount - 1))
   }
 
@@ -115,9 +115,20 @@ const Home: NextPage = () => {
         method: 'PUT',
         body: JSON.stringify(todo),
       })
-        .then(() => {
-          todos[index] = todo
-          setTodos([...todos])
+        .then(res => res.json())
+        .then(({ todo, revision }) => {
+          if (revision) {
+            return pollTodoByRevision(todo.id, revision)
+          } else {
+            todos[index] = todo
+            setTodos([...todos])
+          }
+        })
+        .then(todo => {
+          if (todo) {
+            todos[index] = todo
+            setTodos([...todos])
+          }
         })
         .finally(() => decreaseRequestCount())
     }
